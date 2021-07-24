@@ -1,5 +1,7 @@
 # try-recoil
 
+https://mukhindev.github.io/try-recoil/
+
 Простой проект чисто для изучения следующих заинтересовавших меня библиотек:
 
 * [Recoil](https://www.npmjs.com/package/recoil) — библиотека управления состоянием React
