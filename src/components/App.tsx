@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { createTheme, ThemeProvider, makeStyles } from '@material-ui/core/styles';
 import {
   Button,
@@ -11,9 +11,11 @@ import {
   CheckBoxOutlineBlank as UncheckIcon,
   CheckBox as CheckIcon,
 } from '@material-ui/icons';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { ITodoData } from '../types';
 import { useDebouncedEffect } from '../hooks';
 import Todos from './Todos';
+import { indexedTodoState, todoState } from '../state';
 
 const defaultTheme = createTheme({
   palette: {
@@ -60,9 +62,14 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
+// TODO: Выводить кол-во задач, завершенных и незавершенных
 const App: React.FC = () => {
   const classes = useStyles();
-  const [todos, setTodos] = useState<ITodoData[]>([]);
+  // Получаем состояние атома и его сеттер.
+  // useRecoilState аналогичен [useRecoilState, useSetRecoilState]
+  const [todos, setTodos] = useRecoilState(todoState);
+  // useRecoilValue, useRecoilState работают и с атомами и с селекторами
+  const indexedTodos = useRecoilValue(indexedTodoState);
   const [uncompletedTodos, setUncompletedTodos] = useState<ITodoData[]>([]);
   const [completedTodos, setCompletedTodos] = useState<ITodoData[]>([]);
   const [isShowCompleted, SetIsShowCompleted] = useState(false);
@@ -75,32 +82,16 @@ const App: React.FC = () => {
     setCompletedTodos(newCompletedTodos);
   };
 
-  useEffect(() => {
-    setTodos([
-      { id: 1, title: 'Купить молока', completed: false },
-      { id: 2, title: 'Купить хлеба', completed: false },
-      { id: 3, title: 'Купить кефир', completed: false },
-      { id: 4, title: 'Купить машину', completed: false },
-      { id: 5, title: 'Купить булку', completed: false },
-      { id: 6, title: 'Купить борщ', completed: false },
-    ]);
-  }, []);
-
+  // Перенос в список выполненных с задержкой
   useDebouncedEffect(distribute, delay, [todos]);
-
-  const indexedTodos = useMemo(() => {
-    return todos.reduce((acc, todo) => {
-      acc[todo.id] = todo;
-      return acc;
-    }, {} as Record<string, ITodoData>);
-  }, [todos]);
 
   const handleToggle = (id: number, completed: boolean) => {
     const index = todos.indexOf(indexedTodos[id]);
-    const newTodos = [...todos];
+    const newTodos = JSON.parse(JSON.stringify(todos));
     newTodos[index].completed = completed;
     setTodos(newTodos);
-    setDelay(completed ? 2000 : 0);
+    // Если выполняемая задача в списке невыполненных, установить задержку
+    setDelay(uncompletedTodos.find((todo) => todo.id === newTodos[index].id) ? 2000 : 0);
   };
 
   return (
@@ -125,6 +116,7 @@ const App: React.FC = () => {
               <CheckIcon />
             </Button>
           </ButtonGroup>
+          {/* TODO: Выводить сообщение когда все задачи выполнены */}
           <Todos todos={uncompletedTodos} onToggle={handleToggle} />
           <Collapse
             in={isShowCompleted && !!completedTodos.length}

@@ -8,8 +8,10 @@ import {
   ListItemText,
 } from '@material-ui/core';
 import { Delete as DeleteIcon } from '@material-ui/icons';
+import { useRecoilValue } from 'recoil';
 import { makeStyles } from '@material-ui/core/styles';
 import { ITodoData } from '../types';
+import { indexedTodoState } from '../state';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -28,7 +30,11 @@ interface ITodoProps {
 
 const Todo: React.FC<ITodoProps> = ({ todo, onToggle }) => {
   const classes = useStyles();
-  const { id, title, completed } = todo;
+  const { id, title } = todo;
+  // Получаем селектором задачи в индексированном виде
+  const indexedTodos = useRecoilValue(indexedTodoState);
+  // Получаем свойство completed из соответствующей задачи
+  const { completed } = indexedTodos[id];
   const labelId = `checkbox-list-label-${id}`;
 
   const handleToggle = () => {
