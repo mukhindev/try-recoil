@@ -5,11 +5,12 @@ import {
   ButtonGroup,
   Collapse,
   Paper,
+  TextField,
   Typography,
 } from '@material-ui/core';
 import {
   CheckBoxOutlineBlank as UncheckIcon,
-  CheckBox as CheckIcon,
+  CheckBoxOutlined as CheckIcon,
 } from '@material-ui/icons';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { ITodoData } from '../types';
@@ -54,6 +55,9 @@ const useStyles = makeStyles((theme) => {
       alignSelf: 'center',
       margin: theme.spacing(2),
     },
+    addTodoField: {
+      margin: theme.spacing(2),
+    },
     completedLabel: {
       paddingTop: theme.spacing(2),
       paddingLeft: theme.spacing(2),
@@ -74,6 +78,7 @@ const App: React.FC = () => {
   const [completedTodos, setCompletedTodos] = useState<ITodoData[]>([]);
   const [isShowCompleted, SetIsShowCompleted] = useState(false);
   const [delay, setDelay] = useState(0);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const distribute = () => {
     const newUncompletedTodos = todos.filter((todo) => !todo.completed);
@@ -94,6 +99,35 @@ const App: React.FC = () => {
     setDelay(uncompletedTodos.find((todo) => todo.id === newTodos[index].id) ? 2000 : 0);
   };
 
+  const handleInputTodo = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTodoTitle(evt.target.value);
+  };
+
+  const handleAddTodo = (evt: React.KeyboardEvent) => {
+    if (evt.key !== 'Enter') {
+      return;
+    }
+    if (!newTodoTitle) {
+      return;
+    }
+    const newTodo: ITodoData = {
+      id: todos[todos.length - 1]?.id + 1 || 1,
+      title: newTodoTitle,
+      completed: false,
+    };
+    setTodos([...todos, newTodo]);
+    setNewTodoTitle('');
+    setDelay(0);
+  };
+
+  const handleDelete = (id: number) => {
+    const index = todos.indexOf(indexedTodos[id]);
+    const newTodos = JSON.parse(JSON.stringify(todos));
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
+    setDelay(0);
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <div className={classes.app}>
@@ -104,12 +138,16 @@ const App: React.FC = () => {
             aria-label="Вид"
           >
             <Button
+              variant="contained"
+              color={isShowCompleted ? 'default' : 'primary'}
               disabled={!completedTodos.length}
               onClick={() => SetIsShowCompleted(false)}
             >
               <UncheckIcon />
             </Button>
             <Button
+              variant="contained"
+              color={!isShowCompleted ? 'default' : 'primary'}
               disabled={!completedTodos.length}
               onClick={() => SetIsShowCompleted(true)}
             >
@@ -117,14 +155,29 @@ const App: React.FC = () => {
             </Button>
           </ButtonGroup>
           {/* TODO: Выводить сообщение когда все задачи выполнены */}
-          <Todos todos={uncompletedTodos} onToggle={handleToggle} />
+          <Todos
+            todos={uncompletedTodos}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+          />
+          <TextField
+            className={classes.addTodoField}
+            placeholder="Новая задача"
+            onKeyDown={handleAddTodo}
+            value={newTodoTitle}
+            onInput={handleInputTodo}
+          />
           <Collapse
             in={isShowCompleted && !!completedTodos.length}
             timeout="auto"
             unmountOnExit
           >
             <Typography className={classes.completedLabel}>Выполненные</Typography>
-            <Todos todos={completedTodos} onToggle={handleToggle} />
+            <Todos
+              todos={completedTodos}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
           </Collapse>
         </Paper>
       </div>

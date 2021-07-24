@@ -6,9 +6,10 @@ import Todo from './Todo';
 interface ITodoProps {
   todos: ITodoData[],
   onToggle: (id: number, completed: boolean) => void,
+  onDelete: (id: number) => void,
 }
 
-const Todos: React.FC<ITodoProps> = ({ todos, onToggle }) => {
+const Todos: React.FC<ITodoProps> = ({ todos, onToggle, onDelete }) => {
   return (
     <List>
       {todos.map((todo) => (
@@ -16,6 +17,7 @@ const Todos: React.FC<ITodoProps> = ({ todos, onToggle }) => {
           key={todo.id}
           todo={todo}
           onToggle={onToggle}
+          onDelete={onDelete}
         />
       ))}
     </List>
