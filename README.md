@@ -1,18 +1,12 @@
-# Getting Started with Create React App
+# try-recoil
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Простой проект чисто для изучения следующих заинтересовавших меня библиотек:
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+* [Recoil](https://www.npmjs.com/package/recoil) — библиотека управления состоянием React
+* [Material UI для React](https://material-ui.com/)
+  — UI-библиотека компонентов и утилит для построения интерфейсов,
+  использующая дизайн систему Google [Material Design](https://material.io/)
+* [Mirage](https://miragejs.com/) — имитация API.
 
 ### `npm test`
 
